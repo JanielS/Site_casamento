@@ -25,7 +25,7 @@ export function AudioControls() {
   }
 
   return (
-    <div className="audio-strip" aria-label="Controle da música">
+    <div className="audio-strip reveal-on-scroll reveal-delay-2" aria-label="Controle da música">
       <span className="audio-cta">Clique aqui</span>
       <div className="audio-progress" aria-hidden="true">
         <span style={{ width: `${progress}%` }} />

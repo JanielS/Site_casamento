@@ -15,7 +15,7 @@ export function NoticesSection() {
   ];
 
   return (
-    <section className="notices-section" aria-label="Avisos importantes">
+    <section className="notices-section reveal-on-scroll" aria-label="Avisos importantes">
       <div className="notices-inner">
         <p className="section-kicker notices-kicker">Avisos importantes</p>
         {notices.map((notice) => (

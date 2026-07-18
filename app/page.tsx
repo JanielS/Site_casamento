@@ -14,13 +14,13 @@ export default async function HomePage() {
     <main className="site-flow">
       <HeroSection settings={settings} />
 
-      <section className="content-section countdown-section">
+      <section className="content-section countdown-section reveal-on-scroll">
         <h2 className="section-title countdown-title">CONTAGEM REGRESSIVA</h2>
         <Countdown targetIso={settings.weddingDate} />
       </section>
 
       <section className="date-rsvp-section" id="rsvp">
-        <div className="date-content">
+        <div className="date-content reveal-on-scroll">
           <p className="section-kicker invitation-text">Convidamos você para a cerimônia do nosso casamento</p>
           <h2 className="date-title">23 . JANEIRO . 2027</h2>
           <p className="date-subtitle">
@@ -29,7 +29,7 @@ export default async function HomePage() {
           <RSVPForm />
         </div>
 
-        <div className="confirmation-photo">
+        <div className="confirmation-photo reveal-on-scroll">
           <img src={settings.confirmationImageUrl} alt="Lina e Janiel em foto de confirmação" />
         </div>
       </section>

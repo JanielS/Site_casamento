@@ -735,6 +735,59 @@ audio {
   animation: fade-up 420ms ease both;
 }
 
+.reveal-on-scroll {
+  --reveal-base-transform: translate3d(0, 0, 0);
+  opacity: 0;
+  transform: var(--reveal-base-transform);
+  filter: blur(7px);
+  transition:
+    opacity 900ms ease,
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 900ms ease;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: var(--reveal-base-transform);
+  filter: blur(0);
+}
+
+.confirmation-photo.reveal-on-scroll,
+.notices-section.reveal-on-scroll {
+  transition-duration: 1100ms;
+}
+
+.confirmation-photo.reveal-on-scroll.is-visible,
+.notices-section.reveal-on-scroll.is-visible {
+  transform: var(--reveal-base-transform);
+}
+
+.gift-card.reveal-on-scroll {
+  transform: scale(0.985);
+}
+
+.gift-card.reveal-on-scroll.is-visible {
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.audio-strip.reveal-on-scroll {
+  --reveal-base-transform: translateY(132px);
+}
+
+.reveal-delay-1 {
+  --reveal-delay: 120ms;
+}
+
+.reveal-delay-2 {
+  --reveal-delay: 240ms;
+}
+
+.reveal-delay-3 {
+  --reveal-delay: 360ms;
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -829,5 +882,11 @@ audio {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 }

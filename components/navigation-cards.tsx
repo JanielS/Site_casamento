@@ -29,16 +29,16 @@ function GiftIcon() {
 
 export function NavigationCards({ settings }: { settings: SiteSettings }) {
   return (
-    <section className="content-section access-section">
+    <section className="content-section access-section reveal-on-scroll">
       <div className="access-link-row">
-        <a className="access-link" href={settings.churchMapsUrl} target="_blank" rel="noopener noreferrer">
+        <a className="access-link reveal-on-scroll reveal-delay-1" href={settings.churchMapsUrl} target="_blank" rel="noopener noreferrer">
           <span className="access-icon">
             <ChurchIcon />
           </span>
           <strong>Local da cerimônia</strong>
         </a>
 
-        <Link className="access-link" href="/presentes">
+        <Link className="access-link reveal-on-scroll reveal-delay-2" href="/presentes">
           <span className="access-icon">
             <GiftIcon />
           </span>

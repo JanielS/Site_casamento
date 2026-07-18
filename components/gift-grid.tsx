@@ -129,12 +129,12 @@ export function GiftGrid({ gifts }: { gifts: PublicGiftView[] }) {
 
   return (
     <div className="grid three gifts-grid">
-      {items.map((gift) => {
+      {items.map((gift, index) => {
         const isLoading = loadingId === gift.id;
         const image = gift.imagePath || DEFAULT_GIFT_IMAGE;
 
         return (
-          <article className="card gift-card" key={gift.id}>
+          <article className={`card gift-card reveal-on-scroll reveal-delay-${index % 4}`} key={gift.id}>
             <div className="gift-image-wrap">
               <img src={image} alt={gift.name} />
             </div>

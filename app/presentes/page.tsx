@@ -11,7 +11,7 @@ export default async function PresentesPage() {
     <main className="site-flow">
       <HeroSection settings={snapshot.settings} />
 
-      <section className="content-section presents-message">
+      <section className="content-section presents-message reveal-on-scroll">
         <p className="section-kicker">Lista de presentes</p>
         <h1 className="section-title">Nosso maior presente é a sua presença</h1>
         <p>
@@ -21,7 +21,7 @@ export default async function PresentesPage() {
         </p>
       </section>
 
-      <section className="content-section gifts-section">
+      <section className="content-section gifts-section reveal-on-scroll">
         <GiftGrid gifts={gifts} />
       </section>
     </main>

@@ -3,6 +3,7 @@ import { Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from "@/components/audio-provider";
 import { GlobalAudioPlayer } from "@/components/global-audio-player";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { getSiteSettings } from "@/lib/excel";
 import type { ReactNode } from "react";
 
@@ -37,6 +38,7 @@ export default async function RootLayout({
             {children}
           </div>
           <GlobalAudioPlayer />
+          <ScrollReveal />
         </AudioProvider>
       </body>
     </html>
