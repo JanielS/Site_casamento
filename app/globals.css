@@ -828,30 +828,93 @@ audio {
 @media (max-width: 560px) {
   .content-section {
     width: min(100% - 28px, var(--max-width));
-    padding: 46px 0;
+    padding: 38px 0;
+  }
+
+  .hero-flow {
+    min-height: auto;
   }
 
   .hero-video-wrap {
-    height: 45svh;
-    min-height: 300px;
+    height: 38svh;
+    min-height: 260px;
   }
 
   .hero-transition {
     margin-top: -80px;
-    padding: 24px 18px 26px;
+    min-height: auto;
+    padding: 42px 18px 38px;
+    gap: 18px;
   }
 
   .hero-names {
-    font-size: clamp(2.2rem, 11vw, 3.2rem);
+    font-size: clamp(2.4rem, 12vw, 3.35rem);
+  }
+
+  .hero-phrase {
+    font-size: clamp(1.08rem, 5.2vw, 1.35rem);
+    line-height: 1.7;
+  }
+
+  .audio-strip {
+    width: min(100%, 280px);
+    margin-top: 54px;
+    transform: none;
+  }
+
+  .audio-strip.reveal-on-scroll {
+    --reveal-base-transform: translate3d(0, 0, 0);
+  }
+
+  .countdown-section {
+    padding-top: 34px;
+    padding-bottom: 42px;
+  }
+
+  .countdown-title {
+    font-size: clamp(2rem, 11vw, 2.65rem);
+    line-height: 1.08;
+  }
+
+  .countdown-line {
+    gap: 7px;
+    margin-top: 18px;
+    font-size: clamp(2.7rem, 14vw, 3.65rem);
+  }
+
+  .countdown-part {
+    gap: 7px;
   }
 
   .date-rsvp-section {
     grid-template-columns: 1fr;
-    padding-top: 40px;
+    padding-top: 34px;
+  }
+
+  .date-content {
+    width: min(100% - 28px, 620px);
+    margin-bottom: 28px;
+  }
+
+  .invitation-text {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    letter-spacing: 0.18em;
+  }
+
+  .date-title {
+    font-size: clamp(2.55rem, 13vw, 3.45rem);
+  }
+
+  .date-subtitle {
+    margin-bottom: 28px;
   }
 
   .confirmation-photo {
     order: 2;
+    min-height: auto;
+    padding: 8px 0 34px;
+    display: block;
   }
 
   .date-content {
@@ -859,9 +922,27 @@ audio {
   }
 
   .confirmation-photo img {
-    min-height: auto;
+    width: min(100%, 520px);
+    height: auto;
+    min-height: 0;
     max-height: none;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: auto;
+  }
+
+  .notices-inner {
+    padding: 48px 24px 58px;
+  }
+
+  .notice-item {
+    padding: 18px 0;
+  }
+
+  .notice-item h3 {
+    font-size: 1.45rem;
+  }
+
+  .notice-item p {
+    font-size: 1.12rem;
   }
 
   .grid.three {
