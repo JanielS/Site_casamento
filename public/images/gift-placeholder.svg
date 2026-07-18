@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" rx="34" fill="#FFF9F5"/>
+  <circle cx="400" cy="252" r="78" fill="#B8B77E"/>
+  <path d="M400 154c-14 22-32 51-32 79 0 18 7 33 18 43h28c11-10 18-25 18-43 0-28-18-57-32-79Z" fill="#CB5823"/>
+  <path d="M270 409c37-54 85-82 130-82s93 28 130 82" stroke="#657949" stroke-width="20" stroke-linecap="round"/>
+  <path d="M317 319c21 14 51 21 83 21s62-7 83-21" stroke="#8E412E" stroke-width="16" stroke-linecap="round"/>
+  <text x="400" y="494" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="42" fill="#8E412E">Presente</text>
+</svg>
