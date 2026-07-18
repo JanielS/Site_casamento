@@ -103,14 +103,14 @@ main {
 
 .hero-flow {
   position: relative;
-  min-height: 92svh;
+  min-height: 100svh;
   background: var(--color-white);
 }
 
 .hero-video-wrap {
   position: relative;
-  height: min(60svh, 660px);
-  min-height: 380px;
+  height: min(74svh, 840px);
+  min-height: 580px;
   overflow: hidden;
 }
 
@@ -134,10 +134,10 @@ main {
   z-index: 1;
   width: 100%;
   min-height: 310px;
-  margin: -126px auto 0;
-  padding: clamp(62px, 8vw, 96px) clamp(20px, 5vw, 64px) 70px;
+  margin: -170px auto 0;
+  padding: clamp(42px, 6vw, 78px) clamp(20px, 5vw, 64px) 72px;
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(380px, 720px) minmax(220px, 1fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(420px, 760px) minmax(180px, 1fr);
   gap: 22px;
   align-items: center;
   text-align: center;
@@ -154,7 +154,7 @@ main {
   margin: 0;
   color: rgba(101, 121, 73, 0.78);
   font-family: var(--script-font);
-  font-size: clamp(3.6rem, 7vw, 6.4rem);
+  font-size: clamp(4.8rem, 8.7vw, 7.9rem);
   font-weight: 500;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -265,8 +265,11 @@ main {
 }
 
 .countdown-title {
-  font-size: clamp(1.9rem, 5vw, 3.3rem);
-  letter-spacing: 0.04em;
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  font-size: clamp(1.45rem, 4vw, 2.3rem);
+  letter-spacing: 0.12em;
 }
 
 .countdown-line {
@@ -277,7 +280,7 @@ main {
   margin-top: 26px;
   color: var(--color-wine);
   font-family: var(--display-font);
-  font-size: clamp(2.6rem, 9vw, 5.6rem);
+  font-size: clamp(2.6rem, 8vw, 5rem);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -840,19 +843,19 @@ audio {
   }
 
   .hero-video-wrap {
-    height: 38svh;
-    min-height: 260px;
+    height: 64svh;
+    min-height: 420px;
   }
 
   .hero-transition {
-    margin-top: -80px;
+    margin-top: -108px;
     min-height: auto;
-    padding: 42px 18px 118px;
+    padding: 34px 18px 118px;
     gap: 18px;
   }
 
   .hero-names {
-    font-size: clamp(2.4rem, 12vw, 3.35rem);
+    font-size: clamp(3.45rem, 14vw, 4.9rem);
   }
 
   .hero-phrase {
@@ -862,9 +865,9 @@ audio {
 
   .audio-strip {
     position: absolute;
-    right: 14px;
-    bottom: 28px;
-    width: 138px;
+    right: 12px;
+    bottom: 24px;
+    width: 126px;
     margin: 0;
     transform: none;
   }
@@ -875,7 +878,7 @@ audio {
 
   .audio-cta {
     margin-bottom: 5px;
-    font-size: 0.58rem;
+    font-size: 0.54rem;
     letter-spacing: 0.16em;
   }
 
@@ -912,14 +915,15 @@ audio {
   }
 
   .countdown-title {
-    font-size: clamp(2rem, 11vw, 2.65rem);
+    max-width: calc(100vw - 44px);
+    font-size: clamp(1.2rem, 4.9vw, 1.6rem);
     line-height: 1.08;
   }
 
   .countdown-line {
     gap: 5px;
     margin-top: 18px;
-    font-size: clamp(2.35rem, 12.4vw, 3.1rem);
+    font-size: clamp(1.95rem, 10.5vw, 2.75rem);
   }
 
   .countdown-part {
