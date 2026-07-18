@@ -843,7 +843,7 @@ audio {
   .hero-transition {
     margin-top: -80px;
     min-height: auto;
-    padding: 42px 18px 38px;
+    padding: 42px 18px 118px;
     gap: 18px;
   }
 
@@ -857,13 +857,49 @@ audio {
   }
 
   .audio-strip {
-    width: min(100%, 280px);
-    margin-top: 54px;
+    position: absolute;
+    right: 14px;
+    bottom: 28px;
+    width: 138px;
+    margin: 0;
     transform: none;
   }
 
   .audio-strip.reveal-on-scroll {
     --reveal-base-transform: translate3d(0, 0, 0);
+  }
+
+  .audio-cta {
+    margin-bottom: 5px;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+  }
+
+  .audio-progress {
+    height: 2px;
+  }
+
+  .audio-row {
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .audio-icon {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    font-size: 0.74rem;
+  }
+
+  .audio-main-button {
+    width: 34px;
+    height: 34px;
+    font-size: 0.82rem;
+  }
+
+  .audio-title {
+    margin-top: 3px;
+    font-size: 0.64rem;
   }
 
   .countdown-section {
@@ -877,13 +913,13 @@ audio {
   }
 
   .countdown-line {
-    gap: 7px;
+    gap: 5px;
     margin-top: 18px;
-    font-size: clamp(2.7rem, 14vw, 3.65rem);
+    font-size: clamp(2.35rem, 12.4vw, 3.1rem);
   }
 
   .countdown-part {
-    gap: 7px;
+    gap: 5px;
   }
 
   .date-rsvp-section {
@@ -903,7 +939,8 @@ audio {
   }
 
   .date-title {
-    font-size: clamp(2.55rem, 13vw, 3.45rem);
+    font-size: clamp(2.18rem, 10vw, 2.72rem);
+    letter-spacing: -0.015em;
   }
 
   .date-subtitle {
