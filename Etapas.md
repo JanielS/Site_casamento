@@ -14,7 +14,7 @@ Atualização esperada: ao concluir cada etapa, marcar o status correspondente e
 
 ## Fase atual
 
-**Fase atual: Implementação base concluída**
+**Fase atual: Validação final e refinamento visual**
 
 Situação neste momento:
 
@@ -25,8 +25,16 @@ Situação neste momento:
 - os arquivos de mídia definitivos estão integrados;
 - a URL do Google Maps já foi configurada;
 - a lista de presentes inicial já existe e é editável;
+- o site principal, a página de presentes, o painel admin e as APIs já estão implementados;
+- a navegação, o RSVP, a exportação `.xlsx`, a reserva de presentes e o áudio global já existem no código;
 - o projeto já compila com `typecheck` e `build` aprovados;
-- faltam apenas validações manuais finais e eventual refinamento fino de conteúdo.
+- o trabalho atual está concentrado em ajustes finos de layout e validações manuais reais, principalmente em mobile.
+
+## Status resumido das etapas
+
+- Etapas 1 a 13: concluídas.
+- Etapa 14: em validação final.
+- Etapa 15: pendente até o fechamento final do projeto.
 
 ## Resumo das decisões já fechadas
 
@@ -491,12 +499,12 @@ Garantir que as funcionalidades principais se comportam como esperado antes da e
 
 ### Validação
 
-- Os testes passam sem falha.
-- O comportamento principal funciona em navegação real.
+- Os testes automáticos de build e typecheck já passam.
+- O comportamento principal já foi verificado em navegação real local.
 - O áudio permanece contínuo entre páginas.
 - O formulário funciona bem em tela pequena.
 - A lista de presentes responde corretamente a reserva e desmarcação.
-- Não há erros evidentes no console.
+- Ainda faltam validações manuais finais em dispositivos e navegadores reais.
 
 ### Saída esperada
 
@@ -593,3 +601,13 @@ Estas validações ainda devem ser executadas em ambiente real de uso:
 - validar a aparência final em mobile e desktop;
 - testar manualmente a continuidade da música entre `/` e `/presentes`;
 - revisar o texto final de alguns rótulos administrativos, se desejado.
+
+## Observação de estado atual
+
+O código já cobre a espinha dorsal do produto. O que segue agora é principalmente:
+
+- ajuste fino de hierarquia visual;
+- conferência do comportamento em telas pequenas;
+- validação manual dos fluxos críticos;
+- eventual polimento de textos e espaçamentos.
+

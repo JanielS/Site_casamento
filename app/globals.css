@@ -561,13 +561,16 @@ main {
 }
 
 .gift-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
   text-align: center;
 }
 
 .gift-image-wrap {
-  aspect-ratio: 4 / 3;
-  padding: 20px;
+  aspect-ratio: 4 / 3.15;
+  padding: 14px;
   background: rgba(230, 206, 188, 0.62);
 }
 
@@ -581,9 +584,11 @@ main {
 }
 
 .gift-card-body {
-  display: grid;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   gap: 16px;
-  padding: 22px 18px 20px;
+  padding: 20px 18px 20px;
 }
 
 .gift-copy {
@@ -591,6 +596,7 @@ main {
   gap: 4px;
   justify-items: center;
   text-align: center;
+  min-height: 4.5em;
 }
 
 .gift-copy strong {
@@ -607,6 +613,7 @@ main {
   display: grid;
   justify-items: center;
   gap: 10px;
+  margin-top: auto;
 }
 
 .gift-button {
@@ -996,6 +1003,23 @@ audio {
   .grid.three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+  }
+
+  .gift-image-wrap {
+    aspect-ratio: 4 / 3.2;
+    padding: 12px;
+  }
+
+  .gift-card-body {
+    padding: 18px 14px 18px;
+  }
+
+  .gift-copy {
+    min-height: 5.1em;
+  }
+
+  .gift-button {
+    width: 100%;
   }
 }
 

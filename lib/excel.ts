@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import os from "node:os";
 import ExcelJS from "exceljs";
 import {
   DATA_DIR,
   DEFAULT_GIFT_IMAGE,
-  GIFT_UPLOAD_DIR,
   buildInitialGiftSeed,
   defaultSettings
 } from "@/lib/constants";
@@ -18,7 +18,8 @@ import type {
   WorkbookSnapshot
 } from "@/lib/types";
 
-const DATA_PATH = path.join(process.cwd(), DATA_DIR, "wedding-data.xlsx");
+const DATA_ROOT = process.env.VERCEL ? path.join(os.tmpdir(), DATA_DIR) : path.join(process.cwd(), DATA_DIR);
+const DATA_PATH = path.join(DATA_ROOT, "wedding-data.xlsx");
 const LOCK_PATH = `${DATA_PATH}.lock`;
 
 const SHEETS = {
@@ -43,7 +44,6 @@ function toStringValue(value: unknown) {
 
 async function ensureBaseFolders() {
   await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-  await fs.mkdir(GIFT_UPLOAD_DIR, { recursive: true });
 }
 
 async function createEmptyWorkbook(filePath: string) {
@@ -507,11 +507,20 @@ export async function releaseGiftReservation(input: { giftId: string; token: str
 }
 
 export async function uploadGiftImage(file: File, giftId?: string) {
-  await ensureBaseFolders();
   const extension = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : ".jpg";
   const fileName = `${giftId ?? createId("gift_image")}${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (process.env.VERCEL) {
+    const uploadDir = path.join(os.tmpdir(), "uploads", "gifts");
+    await fs.mkdir(uploadDir, { recursive: true });
+    await fs.writeFile(path.join(uploadDir, fileName), buffer);
+    return `/api/uploads/gifts/${fileName}`;
+  }
+
+  await ensureBaseFolders();
   const destination = path.join(process.cwd(), "public", "uploads", "gifts", fileName);
+  await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.writeFile(destination, buffer);
   return `/uploads/gifts/${fileName}`;
 }
