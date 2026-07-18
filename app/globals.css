@@ -213,6 +213,10 @@ main {
   margin-top: 8px;
 }
 
+.audio-row-single {
+  gap: 0;
+}
+
 .audio-icon,
 .audio-main-button {
   border: 0;

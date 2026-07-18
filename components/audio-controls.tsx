@@ -30,10 +30,7 @@ export function AudioControls() {
       <div className="audio-progress" aria-hidden="true">
         <span style={{ width: `${progress}%` }} />
       </div>
-      <div className="audio-row">
-        <button className="audio-icon" type="button" aria-label="Voltar música" disabled>
-          ◀
-        </button>
+      <div className="audio-row audio-row-single">
         <button
           className="audio-main-button"
           type="button"
@@ -41,9 +38,6 @@ export function AudioControls() {
           onClick={toggleAudio}
         >
           {state.isPlaying ? "Ⅱ" : "▶"}
-        </button>
-        <button className="audio-icon" type="button" aria-label="Avançar música" disabled>
-          ▶
         </button>
       </div>
       <span className="audio-title">{state.title}</span>
