@@ -1,4 +1,5 @@
 import { AudioControls } from "@/components/audio-controls";
+import { HeroVideo } from "@/components/hero-video";
 import { getMediaForSettings } from "@/lib/media";
 import type { SiteSettings } from "@/lib/types";
 
@@ -9,9 +10,7 @@ export function HeroSection({ settings }: { settings: SiteSettings }) {
   return (
     <section className="hero-flow" aria-label="Abertura do casamento">
       <div className="hero-video-wrap">
-        <video className="hero-video" autoPlay muted loop playsInline preload="auto">
-          <source src={media.video} type="video/mp4" />
-        </video>
+        <HeroVideo src={media.video} />
       </div>
 
       <div className="hero-transition">
