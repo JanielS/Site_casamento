@@ -9,7 +9,7 @@ export function HeroSection({ settings }: { settings: SiteSettings }) {
   return (
     <section className="hero-flow" aria-label="Abertura do casamento">
       <div className="hero-video-wrap">
-        <video className="hero-video" autoPlay muted loop playsInline poster={media.heroImage}>
+        <video className="hero-video" autoPlay muted loop playsInline preload="auto">
           <source src={media.video} type="video/mp4" />
         </video>
       </div>
