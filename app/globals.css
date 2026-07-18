@@ -954,7 +954,8 @@ audio {
   .confirmation-photo {
     order: 2;
     min-height: auto;
-    padding: 8px 0 34px;
+    padding: 8px 0 0;
+    margin-bottom: -26px;
     display: block;
   }
 
@@ -971,7 +972,9 @@ audio {
   }
 
   .notices-inner {
-    padding: 48px 24px 58px;
+    position: relative;
+    z-index: 2;
+    padding: 62px 24px 58px;
   }
 
   .notice-item {
