@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { get as getBlob } from "@vercel/blob";
 import { DEFAULT_GIFT_IMAGE } from "@/lib/constants";
 
 const MIME_TYPES: Record<string, string> = {
@@ -31,6 +32,20 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ) {
   const { filename } = await params;
+  const blobPath = `uploads/gifts/${filename}`;
+
+  if (process.env.NODE_ENV === "production" || process.env.BLOB_READ_WRITE_TOKEN) {
+    const blob = await getBlob(blobPath, { access: "private" });
+    if (blob?.stream) {
+      return new Response(blob.stream, {
+        headers: {
+          "Content-Type": blob.blob.contentType || getMimeType(filename),
+          "Cache-Control": "public, max-age=31536000, immutable"
+        }
+      });
+    }
+  }
+
   const runtimePath = path.join(os.tmpdir(), "uploads", "gifts", filename);
   const localPath = path.join(process.cwd(), "public", "uploads", "gifts", filename);
 

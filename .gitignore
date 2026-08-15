@@ -26,3 +26,6 @@ tsconfig.tsbuildinfo
 /SENSAÇÃO_PRESENTES.jpeg
 /Praia.mov
 /public/Praia.mov
+
+.vercel
+.env*

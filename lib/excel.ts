@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import ExcelJS from "exceljs";
+import { get as getBlob, put as putBlob } from "@vercel/blob";
 import {
   DATA_DIR,
   DEFAULT_GIFT_IMAGE,
@@ -22,6 +23,10 @@ import type {
 
 const DATA_ROOT = process.env.WEDDING_DATA_ROOT ?? path.join(process.cwd(), DATA_DIR);
 const DATA_PATH = path.join(DATA_ROOT, "wedding-data.xlsx");
+const WORKBOOK_BLOB_PATH = "data/wedding-data.xlsx";
+const GIFT_IMAGES_BLOB_PREFIX = "uploads/gifts";
+const WORKBOOK_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const USE_BLOB_STORAGE = process.env.NODE_ENV === "production" || Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 const SHEETS = {
   settings: "settings",
@@ -76,11 +81,39 @@ function hasReservationAccessTokenColumn(sheet: ExcelJS.Worksheet) {
   return toStringValue(sheet.getRow(1).getCell(8).value).toLowerCase() === "accesstoken";
 }
 
+function assertBlobStorageConfigured() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error("Armazenamento em nuvem nao configurado. Defina BLOB_READ_WRITE_TOKEN na Vercel.");
+  }
+}
+
+async function streamToBuffer(stream: ReadableStream<Uint8Array>) {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+    chunks.push(value);
+    total += value.byteLength;
+  }
+
+  const buffer = new Uint8Array(total);
+  let offset = 0;
+  chunks.forEach((chunk) => {
+    buffer.set(chunk, offset);
+    offset += chunk.byteLength;
+  });
+  return Buffer.from(buffer);
+}
+
 async function ensureBaseFolders() {
   await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
 }
 
-async function createEmptyWorkbook(filePath: string) {
+async function createEmptyWorkbookWorkbook() {
   const workbook = new ExcelJS.Workbook();
   const now = new Date().toISOString();
   const settings = workbook.addWorksheet(SHEETS.settings);
@@ -142,10 +175,29 @@ async function createEmptyWorkbook(filePath: string) {
     { header: "accessToken", key: "accessToken", width: 70 }
   ];
 
-  await workbook.xlsx.writeFile(filePath);
+  return Buffer.from(await workbook.xlsx.writeBuffer());
 }
 
-async function ensureWorkbookFile() {
+async function createEmptyWorkbook(filePath: string) {
+  const buffer = await createEmptyWorkbookWorkbook();
+  await fs.writeFile(filePath, buffer);
+}
+
+async function ensureWorkbookStorage() {
+  if (USE_BLOB_STORAGE) {
+    assertBlobStorageConfigured();
+    const blob = await getBlob(WORKBOOK_BLOB_PATH, { access: "private" });
+    if (!blob) {
+      const buffer = await createEmptyWorkbookWorkbook();
+      await putBlob(WORKBOOK_BLOB_PATH, buffer, {
+        access: "private",
+        allowOverwrite: true,
+        contentType: WORKBOOK_MIME_TYPE
+      });
+    }
+    return;
+  }
+
   await ensureBaseFolders();
 
   try {
@@ -153,10 +205,25 @@ async function ensureWorkbookFile() {
   } catch {
     await createEmptyWorkbook(DATA_PATH);
   }
+}
 
+async function readWorkbookBuffer() {
+  await ensureWorkbookStorage();
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(DATA_PATH);
+  if (USE_BLOB_STORAGE) {
+    const blob = await getBlob(WORKBOOK_BLOB_PATH, { access: "private" });
+    if (!blob?.stream) {
+      throw new Error("Nao foi possivel ler o arquivo de casamento.");
+    }
+    await workbook.xlsx.load(await streamToBuffer(blob.stream));
+  } else {
+    await workbook.xlsx.readFile(DATA_PATH);
+  }
 
+  return workbook;
+}
+
+function ensureWorkbookSheets(workbook: ExcelJS.Workbook) {
   const settings = workbook.getWorksheet(SHEETS.settings) ?? workbook.addWorksheet(SHEETS.settings);
   const rsvp = workbook.getWorksheet(SHEETS.rsvp) ?? workbook.addWorksheet(SHEETS.rsvp);
   const gifts = workbook.getWorksheet(SHEETS.gifts) ?? workbook.addWorksheet(SHEETS.gifts);
@@ -207,15 +274,29 @@ async function ensureWorkbookFile() {
       { header: "accessToken", key: "accessToken", width: 70 }
     ];
   }
+}
 
-  await workbook.xlsx.writeFile(DATA_PATH);
+async function writeWorkbookBuffer(workbook: ExcelJS.Workbook) {
+  const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+  if (USE_BLOB_STORAGE) {
+    assertBlobStorageConfigured();
+    await putBlob(WORKBOOK_BLOB_PATH, buffer, {
+      access: "private",
+      allowOverwrite: true,
+      contentType: WORKBOOK_MIME_TYPE
+    });
+    return;
+  }
+
+  await ensureBaseFolders();
+  const tempPath = `${DATA_PATH}.tmp`;
+  await fs.writeFile(tempPath, buffer);
+  await fs.rename(tempPath, DATA_PATH);
 }
 
 async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
-  await ensureWorkbookFile();
-
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(DATA_PATH);
+  const workbook = await readWorkbookBuffer();
+  ensureWorkbookSheets(workbook);
 
   const settingsSheet = workbook.getWorksheet(SHEETS.settings)!;
   const rsvpSheet = workbook.getWorksheet(SHEETS.rsvp)!;
@@ -306,8 +387,6 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
 }
 
 async function writeWorkbookInternal(snapshot: WorkbookSnapshot) {
-  await ensureBaseFolders();
-
   const workbook = new ExcelJS.Workbook();
 
   const settings = workbook.addWorksheet(SHEETS.settings);
@@ -360,9 +439,7 @@ async function writeWorkbookInternal(snapshot: WorkbookSnapshot) {
   ];
   snapshot.giftReservations.forEach((record) => reservations.addRow(record));
 
-  const tempPath = `${DATA_PATH}.tmp`;
-  await workbook.xlsx.writeFile(tempPath);
-  await fs.rename(tempPath, DATA_PATH);
+  await writeWorkbookBuffer(workbook);
 }
 
 async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
@@ -615,6 +692,17 @@ export async function uploadGiftImage(file: File, giftId?: string) {
   const extension = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : ".jpg";
   const fileName = `${giftId ?? createId("gift_image")}${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (USE_BLOB_STORAGE) {
+    assertBlobStorageConfigured();
+    await putBlob(`${GIFT_IMAGES_BLOB_PREFIX}/${fileName}`, buffer, {
+      access: "public",
+      allowOverwrite: true,
+      addRandomSuffix: false,
+      contentType: file.type || undefined
+    });
+    return `/api/uploads/gifts/${fileName}`;
+  }
 
   await ensureBaseFolders();
   const destination = path.join(process.cwd(), "public", "uploads", "gifts", fileName);
