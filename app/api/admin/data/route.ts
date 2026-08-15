@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { isAdminCookieValueValid } from "@/lib/auth";
 import { getWorkbookSnapshot } from "@/lib/excel";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   const session = request.headers.get("cookie")?.match(/wedding-admin-session=([^;]+)/)?.[1];
   if (!isAdminCookieValueValid(session)) {

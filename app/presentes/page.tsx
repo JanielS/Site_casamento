@@ -3,6 +3,9 @@ import { HeroSection } from "@/components/hero-section";
 import { getWorkbookSnapshot } from "@/lib/excel";
 import { mapPublicGifts } from "@/lib/view-models";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PresentesPage() {
   const snapshot = await getWorkbookSnapshot();
   const gifts = mapPublicGifts(snapshot);

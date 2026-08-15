@@ -6,6 +6,9 @@ import { RSVPForm } from "@/components/rsvp-form";
 import { getSiteSettings } from "@/lib/excel";
 import { formatWeddingDateTime } from "@/lib/date";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function HomePage() {
   const settings = await getSiteSettings();
   const formatted = formatWeddingDateTime(settings.weddingDate);

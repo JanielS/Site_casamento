@@ -23,6 +23,9 @@ const sourceSans = Source_Sans_3({
   display: "swap"
 });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.janiellina.com.br");
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -696,7 +696,7 @@ export async function uploadGiftImage(file: File, giftId?: string) {
   if (USE_BLOB_STORAGE) {
     assertBlobStorageConfigured();
     await putBlob(`${GIFT_IMAGES_BLOB_PREFIX}/${fileName}`, buffer, {
-      access: "public",
+      access: "private",
       allowOverwrite: true,
       addRandomSuffix: false,
       contentType: file.type || undefined

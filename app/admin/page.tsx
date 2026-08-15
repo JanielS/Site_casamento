@@ -4,6 +4,9 @@ import { AdminLogin } from "@/components/admin-login";
 import { isAdminSessionValid, readAdminSession } from "@/lib/auth";
 import { getWorkbookSnapshot } from "@/lib/excel";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   robots: {
     index: false,
