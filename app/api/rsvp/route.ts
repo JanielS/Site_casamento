@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAdminCookieValueValid } from "@/lib/auth";
 import { getRsvpList, saveRsvpEntry } from "@/lib/excel";
+import { rateLimitRequest } from "@/lib/rate-limit";
 import { rsvpSchema } from "@/lib/validation";
 
 export async function GET(request: Request) {
@@ -14,6 +15,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const rateLimit = rateLimitRequest(request, "rsvp", 8, 60_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Muitas tentativas. Aguarde um instante e tente novamente." }, { status: 429 });
+  }
+
   const payload = rsvpSchema.safeParse(await request.json().catch(() => ({})));
   if (!payload.success) {
     return NextResponse.json({ error: payload.error.issues[0]?.message ?? "Dados invalidos." }, { status: 400 });

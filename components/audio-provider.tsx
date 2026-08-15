@@ -11,7 +11,6 @@ type AudioState = {
   volume: number;
   currentTime: number;
   duration: number;
-  shouldAutoplay: boolean;
   autoplayBlocked: boolean;
 };
 
@@ -38,7 +37,6 @@ export function AudioProvider({
     volume: 0.8,
     currentTime: 0,
     duration: 0,
-    shouldAutoplay: true,
     autoplayBlocked: false
   });
 
@@ -50,8 +48,6 @@ export function AudioProvider({
       setState((current) => ({
         ...current,
         ...parsed,
-        isPlaying: true,
-        shouldAutoplay: true,
         autoplayBlocked: false,
         title: initialTrack.title,
         src: initialTrack.src
@@ -67,7 +63,8 @@ export function AudioProvider({
       JSON.stringify({
         volume: state.volume,
         currentTime: state.currentTime,
-        src: state.src
+        src: state.src,
+        isPlaying: state.isPlaying
       })
     );
   }, [state.currentTime, state.isPlaying, state.src, state.volume]);

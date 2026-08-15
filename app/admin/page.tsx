@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
 import { AdminDashboard } from "@/components/admin-dashboard";
 import { AdminLogin } from "@/components/admin-login";
 import { isAdminSessionValid, readAdminSession } from "@/lib/auth";
 import { getWorkbookSnapshot } from "@/lib/excel";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default async function AdminPage() {
   const session = await readAdminSession();

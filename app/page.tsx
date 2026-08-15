@@ -22,7 +22,7 @@ export default async function HomePage() {
       <section className="date-rsvp-section" id="rsvp">
         <div className="date-content reveal-on-scroll">
           <p className="section-kicker invitation-text">Convidamos você para a cerimônia do nosso casamento</p>
-          <h2 className="date-title">23 . JANEIRO . 2027</h2>
+          <h2 className="date-title">{formatted.date}</h2>
           <p className="date-subtitle">
             {formatted.weekday} às {formatted.time}
           </p>
@@ -34,7 +34,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <NoticesSection />
+      <NoticesSection notices={settings.notices} />
 
       <NavigationCards settings={settings} />
     </main>

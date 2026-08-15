@@ -1,4 +1,11 @@
 import { z } from "zod";
+import { defaultNotices } from "@/lib/constants";
+
+const noticeSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().trim().min(2, "Informe o titulo do aviso."),
+  text: z.string().trim().min(2, "Informe o texto do aviso.")
+});
 
 export const rsvpSchema = z
   .object({
@@ -21,6 +28,7 @@ export const giftSchema = z.object({
   name: z.string().trim().min(2, "Informe o nome do presente."),
   imagePath: z.string().trim().optional().default(""),
   description: z.string().trim().optional().default(""),
+  quantity: z.coerce.number().int().min(1, "Informe a quantidade disponível.").max(999),
   sortOrder: z.coerce.number().int().min(1).max(9999),
   isActive: z.coerce.boolean().default(true)
 });
@@ -29,6 +37,7 @@ export const settingsSchema = z.object({
   coupleNames: z.string().trim().min(2),
   weddingDate: z.string().trim().min(10),
   churchMapsUrl: z.string().trim().url(),
+  notices: z.array(noticeSchema).default(defaultNotices),
   audioUrl: z.string().trim().min(1),
   videoUrl: z.string().trim().min(1),
   heroImageUrl: z.string().trim().min(1),
@@ -44,7 +53,12 @@ export const adminPasswordSchema = z.object({
 
 export const reservationSchema = z.object({
   giftId: z.string().min(1, "Informe o presente."),
-  token: z.string().min(1, "Token ausente.")
+  token: z.string().min(1, "Token ausente."),
+  guestName: z.string().trim().min(2, "Informe seu nome."),
+  quantity: z.coerce.number().int().min(1, "Informe a quantidade desejada.").max(999)
 });
 
-export const releaseSchema = reservationSchema;
+export const releaseSchema = z.object({
+  giftId: z.string().min(1, "Informe o presente."),
+  token: z.string().min(1, "Token ausente.")
+});

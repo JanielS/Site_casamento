@@ -14,10 +14,10 @@ export async function GET(request: Request) {
   const sheet = workbook.addWorksheet("confirmacoes");
   sheet.columns = [
     { header: "Nome", key: "Nome", width: 30 },
-    { header: "Ira ao casamento?", key: "Ira ao casamento?", width: 18 },
-    { header: "Numero de pessoas", key: "Numero de pessoas", width: 18 },
+    { header: "Irá ao casamento?", key: "Irá ao casamento?", width: 18 },
+    { header: "Número de pessoas", key: "Número de pessoas", width: 18 },
     { header: "Data da resposta", key: "Data da resposta", width: 24 },
-    { header: "Ultima atualizacao", key: "Ultima atualizacao", width: 24 }
+    { header: "Última atualização", key: "Última atualização", width: 24 }
   ];
   rows.forEach((row) => sheet.addRow(row));
 

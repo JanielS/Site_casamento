@@ -1,6 +1,13 @@
 export const CLIENT_RESERVATION_TOKEN_KEY = "wedding-gift-reservation-token";
 export const CLIENT_AUDIO_STATE_KEY = "wedding-audio-state";
 
+export type ClientAudioState = {
+  volume?: number;
+  currentTime?: number;
+  src?: string;
+  isPlaying?: boolean;
+};
+
 export function getClientTokenScript() {
   return `(() => {
     const key = ${JSON.stringify(CLIENT_RESERVATION_TOKEN_KEY)};

@@ -1,10 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import ExcelJS from "exceljs";
 import {
   DATA_DIR,
   DEFAULT_GIFT_IMAGE,
+  DEFAULT_GIFT_QUANTITY,
+  defaultNotices,
   buildInitialGiftSeed,
   defaultSettings
 } from "@/lib/constants";
@@ -14,13 +15,13 @@ import type {
   GiftRecord,
   GiftReservationRecord,
   RSVPRecord,
+  SiteNotice,
   SiteSettings,
   WorkbookSnapshot
 } from "@/lib/types";
 
-const DATA_ROOT = process.env.VERCEL ? path.join(os.tmpdir(), DATA_DIR) : path.join(process.cwd(), DATA_DIR);
+const DATA_ROOT = process.env.WEDDING_DATA_ROOT ?? path.join(process.cwd(), DATA_DIR);
 const DATA_PATH = path.join(DATA_ROOT, "wedding-data.xlsx");
-const LOCK_PATH = `${DATA_PATH}.lock`;
 
 const SHEETS = {
   settings: "settings",
@@ -42,6 +43,39 @@ function toStringValue(value: unknown) {
   return value == null ? "" : String(value);
 }
 
+function serializeNotices(notices: SiteNotice[]) {
+  return JSON.stringify(notices);
+}
+
+function parseNotices(value: string | undefined) {
+  if (!value) return defaultNotices;
+  try {
+    const parsed = JSON.parse(value) as SiteNotice[];
+    if (!Array.isArray(parsed)) return defaultNotices;
+    return parsed
+      .map((notice, index) => ({
+        id: toStringValue(notice?.id) || `notice-${index + 1}`,
+        title: toStringValue(notice?.title),
+        text: toStringValue(notice?.text)
+      }))
+      .filter((notice) => notice.title.trim().length > 0 && notice.text.trim().length > 0);
+  } catch {
+    return defaultNotices;
+  }
+}
+
+function hasQuantityColumn(sheet: ExcelJS.Worksheet) {
+  return toStringValue(sheet.getRow(1).getCell(6).value).toLowerCase() === "quantity";
+}
+
+function hasReservationGuestNameColumn(sheet: ExcelJS.Worksheet) {
+  return toStringValue(sheet.getRow(1).getCell(4).value).toLowerCase() === "guestname";
+}
+
+function hasReservationAccessTokenColumn(sheet: ExcelJS.Worksheet) {
+  return toStringValue(sheet.getRow(1).getCell(8).value).toLowerCase() === "accesstoken";
+}
+
 async function ensureBaseFolders() {
   await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
 }
@@ -59,6 +93,7 @@ async function createEmptyWorkbook(filePath: string) {
     ["coupleNames", defaultSettings.coupleNames],
     ["weddingDate", defaultSettings.weddingDate],
     ["churchMapsUrl", defaultSettings.churchMapsUrl],
+    ["notices", serializeNotices(defaultSettings.notices)],
     ["audioUrl", defaultSettings.audioUrl],
     ["videoUrl", defaultSettings.videoUrl],
     ["heroImageUrl", defaultSettings.heroImageUrl],
@@ -87,6 +122,7 @@ async function createEmptyWorkbook(filePath: string) {
     { header: "imagePath", key: "imagePath", width: 45 },
     { header: "description", key: "description", width: 40 },
     { header: "sortOrder", key: "sortOrder", width: 12 },
+    { header: "quantity", key: "quantity", width: 12 },
     { header: "isActive", key: "isActive", width: 10 },
     { header: "createdAt", key: "createdAt", width: 22 },
     { header: "updatedAt", key: "updatedAt", width: 22 }
@@ -99,8 +135,11 @@ async function createEmptyWorkbook(filePath: string) {
     { header: "id", key: "id", width: 36 },
     { header: "giftId", key: "giftId", width: 36 },
     { header: "ownerTokenHash", key: "ownerTokenHash", width: 70 },
+    { header: "guestName", key: "guestName", width: 28 },
+    { header: "quantity", key: "quantity", width: 12 },
     { header: "createdAt", key: "createdAt", width: 22 },
-    { header: "updatedAt", key: "updatedAt", width: 22 }
+    { header: "updatedAt", key: "updatedAt", width: 22 },
+    { header: "accessToken", key: "accessToken", width: 70 }
   ];
 
   await workbook.xlsx.writeFile(filePath);
@@ -148,6 +187,7 @@ async function ensureWorkbookFile() {
       { header: "imagePath", key: "imagePath", width: 45 },
       { header: "description", key: "description", width: 40 },
       { header: "sortOrder", key: "sortOrder", width: 12 },
+      { header: "quantity", key: "quantity", width: 12 },
       { header: "isActive", key: "isActive", width: 10 },
       { header: "createdAt", key: "createdAt", width: 22 },
       { header: "updatedAt", key: "updatedAt", width: 22 }
@@ -160,8 +200,11 @@ async function ensureWorkbookFile() {
       { header: "id", key: "id", width: 36 },
       { header: "giftId", key: "giftId", width: 36 },
       { header: "ownerTokenHash", key: "ownerTokenHash", width: 70 },
+      { header: "guestName", key: "guestName", width: 28 },
+      { header: "quantity", key: "quantity", width: 12 },
       { header: "createdAt", key: "createdAt", width: 22 },
-      { header: "updatedAt", key: "updatedAt", width: 22 }
+      { header: "updatedAt", key: "updatedAt", width: 22 },
+      { header: "accessToken", key: "accessToken", width: 70 }
     ];
   }
 
@@ -178,6 +221,9 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
   const rsvpSheet = workbook.getWorksheet(SHEETS.rsvp)!;
   const giftsSheet = workbook.getWorksheet(SHEETS.gifts)!;
   const reservationsSheet = workbook.getWorksheet(SHEETS.giftReservations)!;
+  const giftsHaveQuantity = hasQuantityColumn(giftsSheet);
+  const reservationsHaveGuestName = hasReservationGuestNameColumn(reservationsSheet);
+  const reservationsHaveAccessToken = hasReservationAccessTokenColumn(reservationsSheet);
 
   const settingsEntries = settingsSheet.getRows(2, Math.max(settingsSheet.rowCount - 1, 0)) ?? [];
   const settingsMap = new Map<string, string>();
@@ -193,6 +239,7 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
     coupleNames: settingsMap.get("coupleNames") ?? defaultSettings.coupleNames,
     weddingDate: settingsMap.get("weddingDate") ?? defaultSettings.weddingDate,
     churchMapsUrl: settingsMap.get("churchMapsUrl") ?? defaultSettings.churchMapsUrl,
+    notices: parseNotices(settingsMap.get("notices")),
     audioUrl: settingsMap.get("audioUrl") ?? defaultSettings.audioUrl,
     videoUrl: settingsMap.get("videoUrl") ?? defaultSettings.videoUrl,
     heroImageUrl: settingsMap.get("heroImageUrl") ?? defaultSettings.heroImageUrl,
@@ -222,9 +269,12 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
       imagePath: toStringValue(row.getCell(3).value) || DEFAULT_GIFT_IMAGE,
       description: toStringValue(row.getCell(4).value),
       sortOrder: Number(row.getCell(5).value ?? 0),
-      isActive: normalizeBoolean(row.getCell(6).value),
-      createdAt: toStringValue(row.getCell(7).value),
-      updatedAt: toStringValue(row.getCell(8).value)
+      quantity: giftsHaveQuantity
+        ? Number(row.getCell(6).value ?? DEFAULT_GIFT_QUANTITY) || DEFAULT_GIFT_QUANTITY
+        : DEFAULT_GIFT_QUANTITY,
+      isActive: normalizeBoolean(row.getCell(giftsHaveQuantity ? 7 : 6).value),
+      createdAt: toStringValue(row.getCell(giftsHaveQuantity ? 8 : 7).value),
+      updatedAt: toStringValue(row.getCell(giftsHaveQuantity ? 9 : 8).value)
     }))
     .filter((gift) => gift.id && gift.name)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
@@ -235,8 +285,15 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
       id: toStringValue(row.getCell(1).value),
       giftId: toStringValue(row.getCell(2).value),
       ownerTokenHash: toStringValue(row.getCell(3).value),
-      createdAt: toStringValue(row.getCell(4).value),
-      updatedAt: toStringValue(row.getCell(5).value)
+      guestName: reservationsHaveGuestName ? toStringValue(row.getCell(4).value) : "",
+      quantity: reservationsHaveGuestName
+        ? Number(row.getCell(5).value ?? 1) || 1
+        : Number(row.getCell(4).value ?? 1) || 1,
+      createdAt: toStringValue(row.getCell(reservationsHaveGuestName ? 6 : 5).value),
+      updatedAt: toStringValue(row.getCell(reservationsHaveGuestName ? 7 : 6).value),
+      accessToken: reservationsHaveAccessToken
+        ? toStringValue(row.getCell(8).value)
+        : ""
     }))
     .filter((row) => row.id && row.giftId && row.ownerTokenHash);
 
@@ -259,7 +316,10 @@ async function writeWorkbookInternal(snapshot: WorkbookSnapshot) {
     { header: "value", key: "value", width: 80 }
   ];
   Object.entries(snapshot.settings).forEach(([key, value]) => {
-    settings.addRow({ key, value: String(value) });
+    settings.addRow({
+      key,
+      value: key === "notices" ? serializeNotices(value as SiteNotice[]) : String(value)
+    });
   });
 
   const rsvp = workbook.addWorksheet(SHEETS.rsvp);
@@ -280,6 +340,7 @@ async function writeWorkbookInternal(snapshot: WorkbookSnapshot) {
     { header: "imagePath", key: "imagePath", width: 45 },
     { header: "description", key: "description", width: 40 },
     { header: "sortOrder", key: "sortOrder", width: 12 },
+    { header: "quantity", key: "quantity", width: 12 },
     { header: "isActive", key: "isActive", width: 10 },
     { header: "createdAt", key: "createdAt", width: 22 },
     { header: "updatedAt", key: "updatedAt", width: 22 }
@@ -291,8 +352,11 @@ async function writeWorkbookInternal(snapshot: WorkbookSnapshot) {
     { header: "id", key: "id", width: 36 },
     { header: "giftId", key: "giftId", width: 36 },
     { header: "ownerTokenHash", key: "ownerTokenHash", width: 70 },
+    { header: "guestName", key: "guestName", width: 28 },
+    { header: "quantity", key: "quantity", width: 12 },
     { header: "createdAt", key: "createdAt", width: 22 },
-    { header: "updatedAt", key: "updatedAt", width: 22 }
+    { header: "updatedAt", key: "updatedAt", width: 22 },
+    { header: "accessToken", key: "accessToken", width: 70 }
   ];
   snapshot.giftReservations.forEach((record) => reservations.addRow(record));
 
@@ -386,6 +450,13 @@ export async function saveRsvpEntry(input: {
   });
 }
 
+export async function deleteRsvpEntry(rsvpId: string) {
+  return updateWorkbookSnapshot(async (snapshot) => ({
+    ...snapshot,
+    rsvp: snapshot.rsvp.filter((entry) => entry.id !== rsvpId)
+  }));
+}
+
 export async function exportRsvpRows() {
   const snapshot = await getWorkbookSnapshot();
   return snapshot.rsvp
@@ -393,10 +464,10 @@ export async function exportRsvpRows() {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     .map((record) => ({
       Nome: record.name,
-      "Ira ao casamento?": record.willAttend ? "Sim" : "Nao",
-      "Numero de pessoas": record.guestCount,
+      "Irá ao casamento?": record.willAttend ? "Sim" : "Não",
+      "Número de pessoas": record.guestCount,
       "Data da resposta": record.createdAt,
-      "Ultima atualizacao": record.updatedAt
+      "Última atualização": record.updatedAt
     }));
 }
 
@@ -411,12 +482,21 @@ export async function upsertGift(input: Partial<GiftRecord> & { name: string; so
 
   return updateWorkbookSnapshot(async (snapshot) => {
     const existing = input.id ? snapshot.gifts.find((gift) => gift.id === input.id) : undefined;
+    const reservedQuantity = snapshot.giftReservations
+      .filter((reservation) => reservation.giftId === (existing?.id ?? input.id))
+      .reduce((sum, reservation) => sum + reservation.quantity, 0);
+
+    if (existing && parsed.quantity < reservedQuantity) {
+      throw new Error("Nao e possivel reduzir a quantidade abaixo do que ja foi reservado.");
+    }
+
     const record: GiftRecord = {
       id: existing?.id ?? createId("gift"),
       name: parsed.name,
       imagePath: parsed.imagePath || existing?.imagePath || DEFAULT_GIFT_IMAGE,
       description: parsed.description ?? "",
       sortOrder: parsed.sortOrder,
+      quantity: parsed.quantity,
       isActive: parsed.isActive,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now
@@ -449,6 +529,15 @@ export async function deactivateGift(giftId: string) {
 }
 
 export async function reserveGiftForToken(input: { giftId: string; token: string }) {
+  return reserveGiftForTokenWithQuantity({ ...input, quantity: 1, guestName: "Convidado" });
+}
+
+export async function reserveGiftForTokenWithQuantity(input: {
+  giftId: string;
+  token: string;
+  quantity: number;
+  guestName: string;
+}) {
   const now = new Date().toISOString();
   const tokenHash = hashToken(input.token);
 
@@ -458,31 +547,47 @@ export async function reserveGiftForToken(input: { giftId: string; token: string
       throw new Error("Presente indisponivel.");
     }
 
-    const existingReservation = snapshot.giftReservations.find((entry) => entry.giftId === input.giftId);
-    if (existingReservation && existingReservation.ownerTokenHash !== tokenHash) {
+    const giftReservations = snapshot.giftReservations.filter((entry) => entry.giftId === input.giftId);
+    const existingReservation = giftReservations.find((entry) => entry.ownerTokenHash === tokenHash);
+    const reservedQuantity = giftReservations.reduce((sum, entry) => sum + entry.quantity, 0);
+    const reservedByOthers = reservedQuantity - (existingReservation?.quantity ?? 0);
+    const availableForOwner = gift.quantity - reservedByOthers;
+
+    if (input.quantity > availableForOwner) {
+      if (existingReservation) {
+        throw new Error("Nao foi possivel aumentar a quantidade para este presente.");
+      }
       throw new Error("Este presente acabou de ser escolhido por outra pessoa.");
     }
 
     const reservation: GiftReservationRecord = existingReservation
       ? {
           ...existingReservation,
+          accessToken: existingReservation.accessToken || input.token,
+          quantity: input.quantity,
+          guestName: input.guestName.trim() || existingReservation.guestName,
           updatedAt: now
         }
       : {
           id: createId("gift_reservation"),
           giftId: input.giftId,
           ownerTokenHash: tokenHash,
+          accessToken: input.token,
+          guestName: input.guestName.trim(),
+          quantity: input.quantity,
           createdAt: now,
           updatedAt: now
         };
 
-    const giftReservations = existingReservation
-      ? snapshot.giftReservations.map((entry) => (entry.giftId === input.giftId ? reservation : entry))
+    const nextGiftReservations = existingReservation
+      ? snapshot.giftReservations.map((entry) =>
+          entry.giftId === input.giftId && entry.ownerTokenHash === tokenHash ? reservation : entry
+        )
       : [...snapshot.giftReservations, reservation];
 
     return {
       ...snapshot,
-      giftReservations
+      giftReservations: nextGiftReservations
     };
   });
 }
@@ -490,18 +595,18 @@ export async function reserveGiftForToken(input: { giftId: string; token: string
 export async function releaseGiftReservation(input: { giftId: string; token: string }) {
   const tokenHash = hashToken(input.token);
   return updateWorkbookSnapshot(async (snapshot) => {
-    const existingReservation = snapshot.giftReservations.find((entry) => entry.giftId === input.giftId);
+    const existingReservation = snapshot.giftReservations.find(
+      (entry) => entry.giftId === input.giftId && entry.ownerTokenHash === tokenHash
+    );
     if (!existingReservation) {
       throw new Error("Presente sem reserva.");
     }
 
-    if (existingReservation.ownerTokenHash !== tokenHash) {
-      throw new Error("Nao foi possivel liberar este presente.");
-    }
-
     return {
       ...snapshot,
-      giftReservations: snapshot.giftReservations.filter((entry) => entry.giftId !== input.giftId)
+      giftReservations: snapshot.giftReservations.filter(
+        (entry) => !(entry.giftId === input.giftId && entry.ownerTokenHash === tokenHash)
+      )
     };
   });
 }
@@ -510,13 +615,6 @@ export async function uploadGiftImage(file: File, giftId?: string) {
   const extension = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : ".jpg";
   const fileName = `${giftId ?? createId("gift_image")}${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-
-  if (process.env.VERCEL) {
-    const uploadDir = path.join(os.tmpdir(), "uploads", "gifts");
-    await fs.mkdir(uploadDir, { recursive: true });
-    await fs.writeFile(path.join(uploadDir, fileName), buffer);
-    return `/api/uploads/gifts/${fileName}`;
-  }
 
   await ensureBaseFolders();
   const destination = path.join(process.cwd(), "public", "uploads", "gifts", fileName);

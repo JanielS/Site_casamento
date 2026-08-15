@@ -28,7 +28,7 @@ A data está no futuro em relação à data atual do projeto.
 A data deve ser configurável por variável de ambiente ou arquivo de configuração:
 
 ```env
-NEXT\_PUBLIC\_WEDDING\_DATE=2027-01-23T18:00:00-03:00
+NEXT\\\\\\\\\\\\\\\_PUBLIC\\\\\\\\\\\\\\\_WEDDING\\\\\\\\\\\\\\\_DATE=2027-01-23T18:00:00-03:00
 ```
 
 Caso a data já tenha passado, a contagem regressiva deve apresentar uma mensagem elegante, por exemplo:
@@ -150,14 +150,14 @@ Usar navegação client-side para preservar:
 Criar uma área clara de configuração para substituição dos seguintes recursos:
 
 ```text
-@NOME\_VIDEO
-@NOME\_SENCAÇÃO
-@NOME\_MUSICA
-@NOME\_IMAGEM
-@NOME\_FOTO
-@NOME\_INSPIRAÇÃO
-@NOME\_EXPERIENCIA
-@URL\_GOOGLE\_MAPS
+@NOME\\\\\\\\\\\\\\\_VIDEO
+@NOME\\\\\\\\\\\\\\\_SENCAÇÃO
+@NOME\\\\\\\\\\\\\\\_MUSICA
+@NOME\\\\\\\\\\\\\\\_IMAGEM
+@NOME\\\\\\\\\\\\\\\_FOTO
+@NOME\\\\\\\\\\\\\\\_INSPIRAÇÃO
+@NOME\\\\\\\\\\\\\\\_EXPERIENCIA
+@URL\\\\\\\\\\\\\\\_GOOGLE\\\\\\\\\\\\\\\_MAPS
 ```
 
 Sugestão de organização:
@@ -309,33 +309,33 @@ Corrigir a terminologia:
 A primeira visualização deve reproduzir o vídeo:
 
 ```text
-@NOME\_VIDEO
+@NOME\\\\\\\\\\\\\\\_VIDEO
 ```
 
 A sensação visual deve se inspirar em:
 
 ```text
-@NOME\_SENCAÇÃO\_PARTE01```
+@NOME\\\\\\\\\\\\\\\_SENCAÇÃO\\\\\\\\\\\\\\\_PARTE01```
 
 ### Composição
 
 O vídeo deve:
 
-* ocupar a área principal da primeira dobra;
-* ser responsivo;
-* ter tratamento visual elegante;
-* possuir fallback de imagem;
-* usar `object-fit: cover`;
-* não prejudicar a legibilidade dos textos;
-* ser otimizado para carregamento.
+\\\\\\\* ocupar a área principal da primeira dobra;
+\\\\\\\* ser responsivo;
+\\\\\\\* ter tratamento visual elegante;
+\\\\\\\* possuir fallback de imagem;
+\\\\\\\* usar `object-fit: cover`;
+\\\\\\\* não prejudicar a legibilidade dos textos;
+\\\\\\\* ser otimizado para carregamento.
 
 A reprodução do vídeo pode ser:
 
-* automática;
-* sem áudio;
-* em loop;
-* com `playsInline`;
-* com imagem de capa antes do carregamento.
+\\\\\\\* automática;
+\\\\\\\* sem áudio;
+\\\\\\\* em loop;
+\\\\\\\* com `playsInline`;
+\\\\\\\* com imagem de capa antes do carregamento.
 
 ### Transição para a seção seguinte
 
@@ -491,13 +491,13 @@ confirmacoes-casamento-lina-janiel.xlsx
 Logo abaixo do botão ou do formulário, exibir:
 
 ```text
-@NOME\_FOTO\_CONFIRMACAO
+@NOME\\\\\\\\\\\\\\\_FOTO\\\\\\\\\\\\\\\_CONFIRMACAO
 ```
 
 A composição deve se inspirar em:
 
 ```text
-@NOME\_INSPIRAÇÃO\_PARTE02
+@NOME\\\\\\\\\\\\\\\_INSPIRAÇÃO\\\\\\\\\\\\\\\_PARTE02
 ```
 
 \---
@@ -692,7 +692,7 @@ Em caso de conflito, retornar mensagem amigável:
 Inspirar-se em:
 
 ```text
-@NOME\_EXPERIENCIA\_PRESENTES
+@NOME\\\\\\\\\\\\\\\_EXPERIENCIA\\\\\\\\\\\\\\\_PRESENTES
 ```
 
 Usar:

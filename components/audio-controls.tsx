@@ -1,27 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { useAudio } from "@/components/audio-provider";
 
 export function AudioControls() {
-  const { audioRef, state, setState } = useAudio();
-
-  const progress = useMemo(() => {
-    if (!state.duration) return 0;
-    return Math.min((state.currentTime / state.duration) * 100, 100);
-  }, [state.currentTime, state.duration]);
+  const { state, setState } = useAudio();
+  const progress = state.duration ? Math.min((state.currentTime / state.duration) * 100, 100) : 0;
 
   function toggleAudio() {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (audio.paused) {
-      audio.play().catch(() => {
-        setState((current) => ({ ...current, autoplayBlocked: true, isPlaying: false }));
-      });
-    } else {
-      audio.pause();
-    }
+    setState((current) => ({ ...current, isPlaying: !current.isPlaying, autoplayBlocked: false }));
   }
 
   return (
@@ -41,6 +27,11 @@ export function AudioControls() {
         </button>
       </div>
       <span className="audio-title">{state.title}</span>
+      {state.autoplayBlocked ? (
+        <button className="audio-unblock" type="button" onClick={toggleAudio}>
+          Toque para viver esta experiência com música
+        </button>
+      ) : null}
     </div>
   );
 }

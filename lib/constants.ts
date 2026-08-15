@@ -1,4 +1,4 @@
-import type { GiftRecord, SiteSettings } from "@/lib/types";
+import type { GiftRecord, SiteNotice, SiteSettings } from "@/lib/types";
 
 export const WEDDING_DATE_DEFAULT = "2027-01-23T18:00:00-03:00";
 export const WEDDING_TZ = "America/Maceio";
@@ -9,6 +9,25 @@ export const GIFT_UPLOAD_DIR = "public/uploads/gifts";
 export const ADMIN_COOKIE_NAME = "wedding-admin-session";
 export const ADMIN_LOGIN_PATH = "/admin";
 export const DEFAULT_GIFT_IMAGE = "/images/gift-placeholder.svg";
+export const DEFAULT_GIFT_QUANTITY = 1;
+
+export const defaultNotices: SiteNotice[] = [
+  {
+    id: "confirmar-presenca",
+    title: "Confirme sua presença",
+    text: "Responda o quanto antes para nos ajudar na organização."
+  },
+  {
+    id: "pontualidade",
+    title: "Pontualidade é essencial",
+    text: "Chegar atrasado pode atrapalhar a cerimônia."
+  },
+  {
+    id: "celular-silencioso",
+    title: "Silencie o celular",
+    text: "Evite toques e notificações durante a cerimônia."
+  }
+];
 
 export const mediaPaths = {
   audio: "/O_mundo_e_nos.mp3",
@@ -32,7 +51,8 @@ export const defaultSettings: SiteSettings = {
   presentsImageUrl: mediaPaths.presentsImage,
   siteTitle: "Lina e Janiel",
   siteDescription:
-    "Um site de casamento delicado, responsivo e contínuo para Lina e Janiel."
+    "Um site de casamento delicado, responsivo e contínuo para Lina e Janiel.",
+  notices: defaultNotices
 };
 
 export const initialGiftNames = [
@@ -64,6 +84,7 @@ export function buildInitialGiftSeed(nowIso: string): GiftRecord[] {
     name,
     imagePath: "",
     description: "",
+    quantity: DEFAULT_GIFT_QUANTITY,
     sortOrder: index + 1,
     isActive: true,
     createdAt: nowIso,

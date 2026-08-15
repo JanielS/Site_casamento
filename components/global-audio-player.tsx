@@ -10,11 +10,6 @@ export function GlobalAudioPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.volume = state.volume;
-    if (state.currentTime > 0 && Math.abs(audio.currentTime - state.currentTime) > 1) {
-      audio.currentTime = state.currentTime;
-    }
-
     const syncAudioState = () => {
       setState((current) => ({
         ...current,
@@ -25,6 +20,11 @@ export function GlobalAudioPlayer() {
 
     const onEnded = () => {
       audio.currentTime = 0;
+      if (!state.isPlaying) {
+        setState((current) => ({ ...current, currentTime: 0 }));
+        return;
+      }
+
       audio.play().catch(() => {
         setState((current) => ({ ...current, isPlaying: false, autoplayBlocked: true }));
       });
@@ -38,8 +38,6 @@ export function GlobalAudioPlayer() {
       setState((current) => ({ ...current, isPlaying: false }));
     };
 
-    syncAudioState();
-
     audio.addEventListener("loadedmetadata", syncAudioState);
     audio.addEventListener("durationchange", syncAudioState);
     audio.addEventListener("timeupdate", syncAudioState);
@@ -47,18 +45,7 @@ export function GlobalAudioPlayer() {
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
 
-    const tryPlayAfterInteraction = () => {
-      audio.play().catch(() => {
-        setState((current) => ({ ...current, autoplayBlocked: true, isPlaying: false }));
-      });
-    };
-
-    audio.play().catch(() => {
-      setState((current) => ({ ...current, autoplayBlocked: true, isPlaying: false }));
-      window.addEventListener("pointerdown", tryPlayAfterInteraction, { once: true });
-      window.addEventListener("keydown", tryPlayAfterInteraction, { once: true });
-      window.addEventListener("scroll", tryPlayAfterInteraction, { once: true, passive: true });
-    });
+    syncAudioState();
 
     return () => {
       audio.removeEventListener("loadedmetadata", syncAudioState);
@@ -67,11 +54,32 @@ export function GlobalAudioPlayer() {
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
-      window.removeEventListener("pointerdown", tryPlayAfterInteraction);
-      window.removeEventListener("keydown", tryPlayAfterInteraction);
-      window.removeEventListener("scroll", tryPlayAfterInteraction);
     };
-  }, [audioRef, setState, state.volume]);
+  }, [audioRef, setState, state.isPlaying]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = state.volume;
+    if (state.currentTime > 0 && Math.abs(audio.currentTime - state.currentTime) > 1) {
+      audio.currentTime = state.currentTime;
+    }
+  }, [audioRef, state.currentTime, state.volume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (state.isPlaying) {
+      audio.play().catch(() => {
+        setState((current) => ({ ...current, autoplayBlocked: true, isPlaying: false }));
+      });
+      return;
+    }
+
+    audio.pause();
+  }, [audioRef, setState, state.isPlaying]);
 
   return <audio ref={audioRef} autoPlay preload="auto" src={state.src} />;
 }
