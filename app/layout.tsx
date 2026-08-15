@@ -23,7 +23,7 @@ const sourceSans = Source_Sans_3({
   display: "swap"
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : new URL("http://localhost:3000");
+const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.janiellina.com.br");
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
