@@ -33,7 +33,7 @@ export function AudioProvider({
   const [state, setState] = useState<AudioState>({
     title: initialTrack.title,
     src: initialTrack.src,
-    isPlaying: true,
+    isPlaying: false,
     volume: 0.8,
     currentTime: 0,
     duration: 0,
@@ -48,6 +48,7 @@ export function AudioProvider({
       setState((current) => ({
         ...current,
         ...parsed,
+        isPlaying: false,
         autoplayBlocked: false,
         title: initialTrack.title,
         src: initialTrack.src
@@ -63,8 +64,7 @@ export function AudioProvider({
       JSON.stringify({
         volume: state.volume,
         currentTime: state.currentTime,
-        src: state.src,
-        isPlaying: state.isPlaying
+        src: state.src
       })
     );
   }, [state.currentTime, state.isPlaying, state.src, state.volume]);

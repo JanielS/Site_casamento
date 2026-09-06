@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAudio } from "@/components/audio-provider";
 
 export function GlobalAudioPlayer() {
   const { audioRef, state, setState } = useAudio();
+  const isPlayingRef = useRef(state.isPlaying);
+
+  useEffect(() => {
+    isPlayingRef.current = state.isPlaying;
+  }, [state.isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -20,7 +25,7 @@ export function GlobalAudioPlayer() {
 
     const onEnded = () => {
       audio.currentTime = 0;
-      if (!state.isPlaying) {
+      if (!isPlayingRef.current) {
         setState((current) => ({ ...current, currentTime: 0 }));
         return;
       }
@@ -55,7 +60,36 @@ export function GlobalAudioPlayer() {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
     };
-  }, [audioRef, setState, state.isPlaying]);
+  }, [audioRef, setState]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let hasStartedFromInteraction = false;
+
+    const removeInteractionListeners = () => {
+      window.removeEventListener("pointerdown", startFromInteraction, true);
+      window.removeEventListener("keydown", startFromInteraction, true);
+    };
+
+    const startFromInteraction = (event: Event) => {
+      if (hasStartedFromInteraction) return;
+
+      audio.play().then(() => {
+        hasStartedFromInteraction = true;
+        removeInteractionListeners();
+        setState((current) => ({ ...current, isPlaying: true, autoplayBlocked: false }));
+      }).catch(() => {
+        setState((current) => ({ ...current, autoplayBlocked: true }));
+      });
+    };
+
+    window.addEventListener("pointerdown", startFromInteraction, true);
+    window.addEventListener("keydown", startFromInteraction, true);
+
+    return removeInteractionListeners;
+  }, [audioRef, setState]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -78,8 +112,10 @@ export function GlobalAudioPlayer() {
       return;
     }
 
-    audio.pause();
+    if (!audio.paused) {
+      audio.pause();
+    }
   }, [audioRef, setState, state.isPlaying]);
 
-  return <audio ref={audioRef} autoPlay preload="auto" src={state.src} />;
+  return <audio ref={audioRef} preload="auto" src={state.src} />;
 }

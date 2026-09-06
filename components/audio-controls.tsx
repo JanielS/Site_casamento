@@ -11,8 +11,11 @@ export function AudioControls() {
   }
 
   return (
-    <div className="audio-strip reveal-on-scroll reveal-delay-2" aria-label="Controle da música">
-      <span className="audio-cta">Aumente o som</span>
+    <div
+      className="audio-strip reveal-on-scroll reveal-delay-2"
+      data-audio-control
+      aria-label="Controle da música"
+    >
       <div className="audio-progress" aria-hidden="true">
         <span style={{ width: `${progress}%` }} />
       </div>
@@ -21,17 +24,13 @@ export function AudioControls() {
           className="audio-main-button"
           type="button"
           aria-label={state.isPlaying ? "Pausar música" : "Tocar música"}
+          aria-pressed={state.isPlaying}
           onClick={toggleAudio}
         >
           {state.isPlaying ? "Ⅱ" : "▶"}
         </button>
       </div>
       <span className="audio-title">{state.title}</span>
-      {state.autoplayBlocked ? (
-        <button className="audio-unblock" type="button" onClick={toggleAudio}>
-          Toque para viver esta experiência com música
-        </button>
-      ) : null}
     </div>
   );
 }

@@ -1041,6 +1041,15 @@ audio {
     justify-self: center;
   }
 
+  .audio-strip {
+    width: min(100%, 220px);
+    transform: none;
+  }
+
+  .audio-strip.reveal-on-scroll {
+    --reveal-base-transform: translate3d(0, 0, 0);
+  }
+
   .form-grid,
   .access-link-row {
     grid-template-columns: 1fr;
@@ -1087,22 +1096,14 @@ audio {
   }
 
   .audio-strip {
-    position: absolute;
-    right: 12px;
-    bottom: 24px;
-    width: 126px;
-    margin: 0;
+    position: static;
+    width: min(100%, 220px);
+    margin: 0 auto;
     transform: none;
   }
 
   .audio-strip.reveal-on-scroll {
     --reveal-base-transform: translate3d(0, 0, 0);
-  }
-
-  .audio-cta {
-    margin-bottom: 5px;
-    font-size: 0.54rem;
-    letter-spacing: 0.16em;
   }
 
   .audio-progress {
@@ -1122,9 +1123,9 @@ audio {
   }
 
   .audio-main-button {
-    width: 34px;
-    height: 34px;
-    font-size: 0.82rem;
+    width: 38px;
+    height: 38px;
+    font-size: 0.86rem;
   }
 
   .audio-title {

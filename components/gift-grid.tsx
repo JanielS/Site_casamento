@@ -309,9 +309,6 @@ export function GiftGrid({ gifts }: { gifts: PublicGiftView[] }) {
 
                     {isExpanded ? (
                       <div className="gift-panel" aria-live="polite">
-                        <p className="gift-privacy-note">
-                          Seu nome não será mostrado para outras pessoas. Ele aparece apenas para organização dos noivos.
-                        </p>
                         <div>
                           <label className="label" htmlFor={`gift-name-${gift.id}`}>
                             Seu nome
