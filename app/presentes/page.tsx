@@ -24,7 +24,7 @@ export default async function PresentesPage() {
         </p>
       </section>
 
-      <section className="content-section gifts-section reveal-on-scroll">
+      <section className="content-section gifts-section">
         <GiftGrid gifts={gifts} />
       </section>
     </main>
