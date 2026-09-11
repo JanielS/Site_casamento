@@ -44,7 +44,8 @@ export const settingsSchema = z.object({
   confirmationImageUrl: z.string().trim().min(1),
   presentsImageUrl: z.string().trim().min(1),
   siteTitle: z.string().trim().min(2),
-  siteDescription: z.string().trim().min(2)
+  siteDescription: z.string().trim().min(2),
+  pixKey: z.string().trim()
 });
 
 export const adminPasswordSchema = z.object({
@@ -61,4 +62,9 @@ export const reservationSchema = z.object({
 export const releaseSchema = z.object({
   giftId: z.string().min(1, "Informe o presente."),
   token: z.string().min(1, "Token ausente.")
+});
+
+export const pixContributionSchema = z.object({
+  guestName: z.string().trim().min(2, "Informe seu nome."),
+  confirmationId: z.string().uuid("Identificador de confirmação inválido.")
 });

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 630" role="img" aria-labelledby="title description">
+  <title id="title">Contribuir com PIX</title>
+  <desc id="description">Ilustração delicada para contribuição via PIX</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6cebc"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#657949"/>
+      <stop offset="1" stop-color="#8e412e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="630" fill="url(#background)"/>
+  <circle cx="400" cy="285" r="185" fill="#ffffff" fill-opacity=".72" stroke="#b8b77e" stroke-width="3"/>
+  <g transform="translate(400 272) rotate(45)" fill="none" stroke="url(#mark)" stroke-width="25" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-106-14v-50c0-25 20-45 45-45h50"/>
+    <path d="M14-109h50c25 0 45 20 45 45v50"/>
+    <path d="M109 14v50c0 25-20 45-45 45H14"/>
+    <path d="M-14 109h-50c-25 0-45-20-45-45V14"/>
+    <path d="M-54 0h108"/>
+  </g>
+  <text x="400" y="530" text-anchor="middle" fill="#8e412e" font-family="Georgia, serif" font-size="54" font-weight="600" letter-spacing="7">PIX</text>
+</svg>

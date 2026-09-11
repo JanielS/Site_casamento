@@ -25,6 +25,7 @@ Situação neste momento:
 - os arquivos de mídia definitivos estão integrados;
 - a URL do Google Maps já foi configurada;
 - a lista de presentes inicial já existe e é editável;
+- a lista possui um primeiro card especial para contribuição via PIX;
 - o site principal, a página de presentes, o painel admin e as APIs já estão implementados;
 - a navegação, o RSVP, a exportação `.xlsx`, a reserva de presentes e o áudio global já existem no código;
 - o projeto já compila com `typecheck` e `build` aprovados;
@@ -48,6 +49,7 @@ Situação neste momento:
 - A página de presentes terá 20 itens iniciais gerados de forma comum e fácil de editar.
 - As fotos dos presentes serão enviadas pelo admin e armazenadas como arquivos do site, com o Excel guardando a referência.
 - O painel administrativo já está estruturado para editar settings, RSVP e presentes.
+- A chave PIX é configurável pelo admin e as confirmações via PIX possuem uma listagem administrativa própria.
 - Os endpoints públicos e administrativos já estão conectados ao workbook.
 - A exportação `.xlsx` de RSVP já está disponível.
 
@@ -372,6 +374,9 @@ Criar a lista de presentes com edição simples, fotos, estados de disponibilida
 - Guardar o token original no navegador.
 - Garantir que um presente não seja reservado por duas pessoas ao mesmo tempo.
 - Preparar a interface para atualização de fotos e inclusão de novos itens pela área admin.
+- Exibir `Contribuir com PIX` como primeiro card, sem estoque e sem bloquear contribuições futuras.
+- Registrar uma contribuição via PIX apenas quando o visitante clicar em `Já fiz o PIX`.
+- Não registrar nada quando o visitante cancelar o fluxo.
 
 ### Validação
 
@@ -382,6 +387,7 @@ Criar a lista de presentes com edição simples, fotos, estados de disponibilida
 - O token do navegador proprietário libera a reserva corretamente.
 - Um token inválido não libera o item.
 - A interface reflete a fonte de verdade do Excel.
+- O fluxo de PIX exibe a chave configurada, permite copiá-la e só registra após confirmação explícita.
 
 ### Saída esperada
 

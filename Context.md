@@ -705,6 +705,28 @@ Usar:
 * feedback imediato;
 * sem excesso de animação.
 
+### Contribuição via PIX
+
+O primeiro card da lista deve ser uma opção especial chamada `Contribuir com PIX`, mantendo o mesmo visual dos demais presentes.
+
+Fluxo:
+
+1. O visitante clica em `Presentear`;
+2. Informa o próprio nome;
+3. Clica em `Fazer um PIX`;
+4. Um painel exibe a chave PIX e a ação `Copiar chave`;
+5. O painel não possui botão de fechar no topo nem fecha ao clicar fora;
+6. `Cancelar` fecha o painel, limpa o fluxo e não registra nada;
+7. `Já fiz o PIX` registra o nome e a data no painel administrativo.
+
+Regras:
+
+* não registrar valor;
+* não gerar link privado;
+* não reduzir estoque nem bloquear o card para outros visitantes;
+* impedir registros duplicados causados por cliques repetidos;
+* deixar a chave PIX configurável na área administrativa.
+
 \---
 
 # 10\. Modelagem de dados sugerida

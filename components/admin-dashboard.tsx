@@ -16,7 +16,7 @@ type GiftDraft = {
   sortOrder: number;
 };
 
-type SectionKey = "settings" | "newGift" | "gifts" | "reservations" | "rsvp";
+type SectionKey = "settings" | "newGift" | "gifts" | "reservations" | "pix" | "rsvp";
 
 function toDateTimeLocalValue(iso: string) {
   const date = new Date(iso);
@@ -34,6 +34,14 @@ function createNoticeDraft(): SiteNotice {
     title: "Novo aviso",
     text: "Escreva o texto do aviso aqui."
   };
+}
+
+function formatAdminDate(iso: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "America/Maceio"
+  }).format(new Date(iso));
 }
 
 function SectionShell({
@@ -80,6 +88,7 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
     newGift: false,
     gifts: true,
     reservations: true,
+    pix: true,
     rsvp: true
   });
   const [giftDraft, setGiftDraft] = useState<GiftDraft>({
@@ -115,7 +124,8 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
       responses: data.rsvp.length,
       confirmedGuests,
       gifts: data.gifts.length,
-      reservedUnits
+      reservedUnits,
+      pixContributions: data.pixContributions.length
     };
   }, [data]);
 
@@ -282,6 +292,21 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
     }
   }
 
+  async function deletePixContribution(id: string) {
+    const response = await fetch("/api/admin/pix", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+    if (response.ok) {
+      setStatus("Registro de contribuição via PIX excluído.");
+      await refresh();
+    } else {
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      setStatus(payload?.error ?? "Nao foi possivel excluir o registro de PIX.");
+    }
+  }
+
   async function copyPrivateAccessLink(accessToken: string) {
     const link = buildPrivateAccessLink(accessToken);
     if (!link) return;
@@ -424,7 +449,7 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
         </div>
       </div>
 
-      <div className="grid four" style={{ gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
+      <div className="grid admin-summary-grid">
         <article className="card card-pad">
           <strong style={{ fontSize: "1.8rem", color: "var(--color-wine)" }}>{totals.responses}</strong>
           <div className="muted">respostas RSVP</div>
@@ -441,11 +466,15 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
           <strong style={{ fontSize: "1.8rem", color: "var(--color-wine)" }}>{totals.gifts}</strong>
           <div className="muted">presentes cadastrados</div>
         </article>
+        <article className="card card-pad">
+          <strong style={{ fontSize: "1.8rem", color: "var(--color-wine)" }}>{totals.pixContributions}</strong>
+          <div className="muted">contribuições via PIX</div>
+        </article>
       </div>
 
       <SectionShell
         title="Configurações do site"
-        subtitle="Ajuste apenas a data, o link do Maps e os avisos públicos."
+        subtitle="Ajuste a data, o link do Maps, a chave PIX e os avisos públicos."
         sectionKey="settings"
         isOpen={openSections.settings}
         onToggle={toggleSection}
@@ -473,6 +502,18 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
               value={data.settings.churchMapsUrl}
               onChange={(event) => updateSettingsField("churchMapsUrl", event.target.value)}
               placeholder="https://maps.app.goo.gl/..."
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="setting-pix-key">
+              Chave PIX
+            </label>
+            <input
+              id="setting-pix-key"
+              className="input"
+              value={data.settings.pixKey}
+              onChange={(event) => updateSettingsField("pixKey", event.target.value)}
+              placeholder="CPF, e-mail, telefone ou chave aleatória"
             />
           </div>
         </div>
@@ -794,6 +835,48 @@ export function AdminDashboard({ initialData }: { initialData: WorkbookSnapshot 
                     <td>{reservation.updatedAt}</td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </SectionShell>
+
+      <SectionShell
+        title="Contribuições via PIX"
+        subtitle="Registros confirmados pelos convidados após copiarem a chave PIX. Nenhum valor é armazenado."
+        sectionKey="pix"
+        isOpen={openSections.pix}
+        onToggle={toggleSection}
+      >
+        {data.pixContributions.length === 0 ? (
+          <p className="muted">Ainda não há contribuições via PIX registradas.</p>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Forma</th>
+                  <th>Data</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.pixContributions
+                  .slice()
+                  .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+                  .map((entry) => (
+                    <tr key={entry.id}>
+                      <td>{entry.guestName}</td>
+                      <td>PIX</td>
+                      <td>{formatAdminDate(entry.createdAt)}</td>
+                      <td>
+                        <button className="btn btn-secondary" type="button" onClick={() => void deletePixContribution(entry.id)}>
+                          Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

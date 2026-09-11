@@ -3,7 +3,6 @@ import path from "node:path";
 import ExcelJS from "exceljs";
 import { get as getBlob, put as putBlob } from "@vercel/blob";
 import {
-  DATA_DIR,
   DEFAULT_GIFT_IMAGE,
   DEFAULT_GIFT_QUANTITY,
   defaultNotices,
@@ -15,13 +14,14 @@ import { giftSchema, rsvpSchema, settingsSchema } from "@/lib/validation";
 import type {
   GiftRecord,
   GiftReservationRecord,
+  PixContributionRecord,
   RSVPRecord,
   SiteNotice,
   SiteSettings,
   WorkbookSnapshot
 } from "@/lib/types";
 
-const DATA_ROOT = process.env.WEDDING_DATA_ROOT ?? path.join(process.cwd(), DATA_DIR);
+const DATA_ROOT = process.env.WEDDING_DATA_ROOT ?? path.join(process.cwd(), "data");
 const DATA_PATH = path.join(DATA_ROOT, "wedding-data.xlsx");
 const WORKBOOK_BLOB_PATH = "data/wedding-data.xlsx";
 const GIFT_IMAGES_BLOB_PREFIX = "uploads/gifts";
@@ -32,7 +32,8 @@ const SHEETS = {
   settings: "settings",
   rsvp: "rsvp",
   gifts: "gifts",
-  giftReservations: "gift_reservations"
+  giftReservations: "gift_reservations",
+  pixContributions: "pix_contributions"
 } as const;
 
 let queue = Promise.resolve();
@@ -133,7 +134,8 @@ async function createEmptyWorkbookWorkbook() {
     ["confirmationImageUrl", defaultSettings.confirmationImageUrl],
     ["presentsImageUrl", defaultSettings.presentsImageUrl],
     ["siteTitle", defaultSettings.siteTitle],
-    ["siteDescription", defaultSettings.siteDescription]
+    ["siteDescription", defaultSettings.siteDescription],
+    ["pixKey", defaultSettings.pixKey]
   ];
 
   settingsEntries.forEach(([key, value]) => settings.addRow({ key, value }));
@@ -173,6 +175,13 @@ async function createEmptyWorkbookWorkbook() {
     { header: "createdAt", key: "createdAt", width: 22 },
     { header: "updatedAt", key: "updatedAt", width: 22 },
     { header: "accessToken", key: "accessToken", width: 70 }
+  ];
+
+  const pixContributions = workbook.addWorksheet(SHEETS.pixContributions);
+  pixContributions.columns = [
+    { header: "id", key: "id", width: 48 },
+    { header: "guestName", key: "guestName", width: 30 },
+    { header: "createdAt", key: "createdAt", width: 24 }
   ];
 
   return Buffer.from(await workbook.xlsx.writeBuffer());
@@ -228,6 +237,8 @@ function ensureWorkbookSheets(workbook: ExcelJS.Workbook) {
   const rsvp = workbook.getWorksheet(SHEETS.rsvp) ?? workbook.addWorksheet(SHEETS.rsvp);
   const gifts = workbook.getWorksheet(SHEETS.gifts) ?? workbook.addWorksheet(SHEETS.gifts);
   const reservations = workbook.getWorksheet(SHEETS.giftReservations) ?? workbook.addWorksheet(SHEETS.giftReservations);
+  const pixContributions =
+    workbook.getWorksheet(SHEETS.pixContributions) ?? workbook.addWorksheet(SHEETS.pixContributions);
 
   if (settings.rowCount === 0) {
     settings.columns = [
@@ -274,6 +285,14 @@ function ensureWorkbookSheets(workbook: ExcelJS.Workbook) {
       { header: "accessToken", key: "accessToken", width: 70 }
     ];
   }
+
+  if (pixContributions.rowCount === 0) {
+    pixContributions.columns = [
+      { header: "id", key: "id", width: 48 },
+      { header: "guestName", key: "guestName", width: 30 },
+      { header: "createdAt", key: "createdAt", width: 24 }
+    ];
+  }
 }
 
 async function writeWorkbookBuffer(workbook: ExcelJS.Workbook) {
@@ -302,6 +321,7 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
   const rsvpSheet = workbook.getWorksheet(SHEETS.rsvp)!;
   const giftsSheet = workbook.getWorksheet(SHEETS.gifts)!;
   const reservationsSheet = workbook.getWorksheet(SHEETS.giftReservations)!;
+  const pixContributionsSheet = workbook.getWorksheet(SHEETS.pixContributions)!;
   const giftsHaveQuantity = hasQuantityColumn(giftsSheet);
   const reservationsHaveGuestName = hasReservationGuestNameColumn(reservationsSheet);
   const reservationsHaveAccessToken = hasReservationAccessTokenColumn(reservationsSheet);
@@ -327,7 +347,8 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
     confirmationImageUrl: settingsMap.get("confirmationImageUrl") ?? defaultSettings.confirmationImageUrl,
     presentsImageUrl: settingsMap.get("presentsImageUrl") ?? defaultSettings.presentsImageUrl,
     siteTitle: settingsMap.get("siteTitle") ?? defaultSettings.siteTitle,
-    siteDescription: settingsMap.get("siteDescription") ?? defaultSettings.siteDescription
+    siteDescription: settingsMap.get("siteDescription") ?? defaultSettings.siteDescription,
+    pixKey: settingsMap.get("pixKey") ?? defaultSettings.pixKey
   });
 
   const rsvpRows = rsvpSheet.getRows(2, Math.max(rsvpSheet.rowCount - 1, 0)) ?? [];
@@ -378,11 +399,22 @@ async function readWorkbookInternal(): Promise<WorkbookSnapshot> {
     }))
     .filter((row) => row.id && row.giftId && row.ownerTokenHash);
 
+  const pixContributionRows =
+    pixContributionsSheet.getRows(2, Math.max(pixContributionsSheet.rowCount - 1, 0)) ?? [];
+  const pixContributions = pixContributionRows
+    .map<PixContributionRecord>((row) => ({
+      id: toStringValue(row.getCell(1).value),
+      guestName: toStringValue(row.getCell(2).value),
+      createdAt: toStringValue(row.getCell(3).value)
+    }))
+    .filter((row) => row.id && row.guestName && row.createdAt);
+
   return {
     settings,
     rsvp,
     gifts,
-    giftReservations
+    giftReservations,
+    pixContributions
   };
 }
 
@@ -439,6 +471,14 @@ async function writeWorkbookInternal(snapshot: WorkbookSnapshot) {
   ];
   snapshot.giftReservations.forEach((record) => reservations.addRow(record));
 
+  const pixContributions = workbook.addWorksheet(SHEETS.pixContributions);
+  pixContributions.columns = [
+    { header: "id", key: "id", width: 48 },
+    { header: "guestName", key: "guestName", width: 30 },
+    { header: "createdAt", key: "createdAt", width: 24 }
+  ];
+  snapshot.pixContributions.forEach((record) => pixContributions.addRow(record));
+
   await writeWorkbookBuffer(workbook);
 }
 
@@ -489,6 +529,33 @@ export async function getRsvpList() {
 export async function getReservationList() {
   const snapshot = await getWorkbookSnapshot();
   return snapshot.giftReservations;
+}
+
+export async function savePixContribution(input: { guestName: string; confirmationId: string }) {
+  const id = `pix_${input.confirmationId}`;
+  return updateWorkbookSnapshot(async (snapshot) => {
+    if (snapshot.pixContributions.some((entry) => entry.id === id)) {
+      return snapshot;
+    }
+
+    const contribution: PixContributionRecord = {
+      id,
+      guestName: input.guestName.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    return {
+      ...snapshot,
+      pixContributions: [...snapshot.pixContributions, contribution]
+    };
+  });
+}
+
+export async function deletePixContribution(id: string) {
+  return updateWorkbookSnapshot(async (snapshot) => ({
+    ...snapshot,
+    pixContributions: snapshot.pixContributions.filter((entry) => entry.id !== id)
+  }));
 }
 
 export async function saveSiteSettings(nextSettings: SiteSettings) {

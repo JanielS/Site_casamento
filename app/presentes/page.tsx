@@ -25,7 +25,7 @@ export default async function PresentesPage() {
       </section>
 
       <section className="content-section gifts-section">
-        <GiftGrid gifts={gifts} />
+        <GiftGrid gifts={gifts} pixKey={snapshot.settings.pixKey} />
       </section>
     </main>
   );

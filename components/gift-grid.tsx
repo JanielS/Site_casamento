@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { DEFAULT_GIFT_IMAGE } from "@/lib/constants";
+import { PixContributionCard } from "@/components/pix-contribution-card";
 import type { PublicGiftView } from "@/lib/view-models";
 
 type GiftState = PublicGiftView & {
@@ -38,7 +39,7 @@ function clampQuantity(value: number, min: number, max: number) {
   return Math.max(min, Math.min(value, max));
 }
 
-export function GiftGrid({ gifts }: { gifts: PublicGiftView[] }) {
+export function GiftGrid({ gifts, pixKey }: { gifts: PublicGiftView[]; pixKey: string }) {
   const [token, setToken] = useState("");
   const [items, setItems] = useState(gifts);
   const [ownedReservations, setOwnedReservations] = useState<Record<string, OwnedReservation>>({});
@@ -274,6 +275,7 @@ export function GiftGrid({ gifts }: { gifts: PublicGiftView[] }) {
 
   return (
     <div className="grid three gifts-grid">
+      <PixContributionCard pixKey={pixKey} />
       {cards.map((gift, index) => {
         const isLoading = loadingId === gift.id;
         const image = gift.imagePath || DEFAULT_GIFT_IMAGE;

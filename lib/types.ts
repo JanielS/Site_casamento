@@ -10,6 +10,7 @@ export type SiteSettings = {
   presentsImageUrl: string;
   siteTitle: string;
   siteDescription: string;
+  pixKey: string;
 };
 
 export type SiteNotice = {
@@ -50,11 +51,18 @@ export type GiftReservationRecord = {
   updatedAt: string;
 };
 
+export type PixContributionRecord = {
+  id: string;
+  guestName: string;
+  createdAt: string;
+};
+
 export type WorkbookSnapshot = {
   settings: SiteSettings;
   rsvp: RSVPRecord[];
   gifts: GiftRecord[];
   giftReservations: GiftReservationRecord[];
+  pixContributions: PixContributionRecord[];
 };
 
 export type GiftStatus = "available" | "selectedByYou" | "selectedByOther";

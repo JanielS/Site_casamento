@@ -52,6 +52,7 @@ export const defaultSettings: SiteSettings = {
   siteTitle: "Lina e Janiel",
   siteDescription:
     "Um site de casamento delicado, responsivo e contínuo para Lina e Janiel.",
+  pixKey: process.env.NEXT_PUBLIC_PIX_KEY ?? "",
   notices: defaultNotices
 };
 
